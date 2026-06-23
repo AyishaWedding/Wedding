@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSVP Dashboard — Ayisha & Shabin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Lato:wght@300;400&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+:root{
+  --gold:#c9a84c;--gold-dark:#8b6914;--gold-light:#f0d98a;
+  --cream:#fdf8ef;--parchment:#f5ead6;
+  --brown:#5c3d1e;--brown-mid:#7a5230;
+  --text:#3d2b0e;--text-muted:#7d6040;
+  --green:#4a7c59;--green-bg:#edf5f0;
+  --red:#8b2e2e;--red-bg:#fdf0f0;
+  --fd:'Cinzel',Georgia,serif;
+  --fb:'Cormorant Garamond',Georgia,serif;
+  --fs:'Lato',Arial,sans-serif;
+}
+body{background:var(--cream);color:var(--text);font-family:var(--fb);overflow-x:hidden;min-height:100vh;}
+
+/* GATE */
+#gate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--brown);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:24px;padding:32px;
+}
+.gate-names{font-family:'Great Vibes',cursive;font-size:clamp(36px,10vw,64px);color:var(--gold-light);text-align:center;}
+.gate-sub{font-family:var(--fs);font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(240,217,138,.6);}
+.gate-label{font-family:var(--fd);font-size:12px;letter-spacing:2px;color:var(--gold-light);text-transform:uppercase;}
+#pin{
+  background:transparent;border:1.5px solid rgba(240,217,138,.5);
+  color:var(--gold-light);font-family:var(--fd);font-size:18px;
+  letter-spacing:6px;padding:14px 28px;border-radius:6px;
+  text-align:center;outline:none;width:240px;
+}
+#pin:focus{border-color:var(--gold-light);}
+#pin::placeholder{color:rgba(240,217,138,.3);letter-spacing:2px;}
+#gate-btn{
+  padding:13px 40px;background:var(--gold);color:var(--brown);
+  border:none;border-radius:6px;font-family:var(--fd);
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;
+}
+#gate-btn:hover{background:var(--gold-light);}
+#gate-err{font-family:var(--fb);color:#e07070;font-size:14px;font-style:italic;min-height:20px;text-align:center;}
+
+/* DASHBOARD */
+#dashboard{display:none;}
+
+/* HEADER */
+header{
+  background:var(--brown);text-align:center;padding:40px 20px 32px;
+  position:relative;
+}
+header::after{content:'';display:block;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);position:absolute;bottom:0;left:0;right:0;}
+.header-arabic{font-family:var(--fb);font-size:clamp(14px,3.5vw,20px);color:var(--gold-light);direction:rtl;margin-bottom:16px;opacity:.75;}
+.header-names{font-family:'Great Vibes',cursive;font-size:clamp(36px,9vw,60px);color:var(--gold-light);margin-bottom:6px;}
+.header-sub{font-family:var(--fs);font-size:10px;letter-spacing:5px;text-transform:uppercase;color:rgba(240,217,138,.55);margin-bottom:8px;}
+.header-date{font-family:var(--fd);font-size:13px;letter-spacing:3px;color:var(--gold);}
+.back-link{
+  position:absolute;top:20px;left:20px;
+  display:flex;align-items:center;gap:6px;
+  text-decoration:none;font-family:var(--fs);font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(240,217,138,.6);
+}
+.back-link:hover{color:var(--gold-light);}
+.back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:40px 20px 80px;}
+
+/* STAT CARDS */
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:48px;}
+.stat-card{background:var(--parchment);border:1px solid rgba(201,168,76,.4);border-radius:18px;padding:24px 16px 20px;text-align:center;box-shadow:0 4px 18px rgba(90,50,5,.08);position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.blue::before{background:#4a6c8b;}
+.stat-icon{font-size:26px;margin-bottom:10px;}
+.stat-num{font-family:var(--fd);font-size:clamp(28px,6vw,42px);font-weight:600;color:var(--brown);line-height:1;margin-bottom:4px;}
+.stat-card.green .stat-num{color:var(--green);}
+.stat-card.red .stat-num{color:var(--red);}
+.stat-card.blue .stat-num{color:#4a6c8b;}
+.stat-label{font-family:var(--fs);font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
+
+/* SECTION HEAD */
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.section-head h2{font-family:var(--fd);font-size:clamp(15px,3.5vw,20px);font-weight:400;color:var(--brown);letter-spacing:1px;white-space:nowrap;}
+.section-head .line{flex:1;height:1px;background:rgba(201,168,76,.35);}
+.ornament{font-size:11px;color:var(--gold);letter-spacing:6px;text-align:center;margin:32px 0 24px;}
+
+/* GALLERY */
+#gallery-section{margin-bottom:48px;}
+.gallery-toolbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;
+}
+.gallery-count{
+  font-family:var(--fs);font-size:11px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-muted);margin-left:auto;
+}
+#gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+@media(max-width:600px){#gallery-grid{grid-template-columns:repeat(2,1fr);}}
+.gallery-item{
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(90,50,5,.12);
+  background:var(--parchment);
+  aspect-ratio:1/1;
+  position:relative;
+}
+.gallery-item img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  transition:transform .4s ease;
+}
+.gallery-item:hover img{transform:scale(1.04);}
+.gallery-item-actions{
+  position:absolute;top:8px;right:8px;
+  display:flex;flex-direction:column;gap:6px;
+  opacity:0;transition:opacity .2s;
+}
+.gallery-item:hover .gallery-item-actions{opacity:1;}
+.g-btn{
+  width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;backdrop-filter:blur(6px);transition:transform .15s;
+}
+.g-btn:hover{transform:scale(1.1);}
+.g-btn-del{background:rgba(139,46,46,.85);color:#fff;}
+.g-btn-rep{background:rgba(92,61,30,.85);color:var(--gold-light);}
+
+/* Upload slot */
+.gallery-upload-slot{
+  border-radius:14px;
+  border:2px dashed rgba(201,168,76,.5);
+  background:rgba(245,234,214,.4);
+  aspect-ratio:1/1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;transition:background .2s,border-color .2s;
+  position:relative;
+}
+.gallery-upload-slot:hover{
+  background:rgba(201,168,76,.1);
+  border-color:var(--gold);
+}
+.gallery-upload-slot input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-icon{font-size:28px;}
+.upload-label{
+  font-family:var(--fs);font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-muted);text-align:center;padding:0 12px;
+}
+
+/* Uploading spinner */
+.gallery-item.uploading{
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(245,234,214,.6);
+}
+.spinner{
+  width:32px;height:32px;border:3px solid rgba(201,168,76,.3);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.gallery-msg{
+  grid-column:1/-1;
+  text-align:center;padding:32px;
+  font-family:var(--fb);font-style:italic;color:var(--text-muted);font-size:15px;
+  background:var(--parchment);border-radius:14px;
+  border:1px solid rgba(201,168,76,.3);
+}
+.gallery-msg.error{
+  color:var(--red);background:var(--red-bg);
+  border-color:rgba(139,46,46,.2);font-size:13px;
+}
+/* Toast */
+#g-toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--brown);color:var(--gold-light);
+  font-family:var(--fs);font-size:12px;letter-spacing:1px;
+  padding:12px 24px;border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);
+  transition:transform .3s ease;z-index:9000;white-space:nowrap;
+}
+#g-toast.show{transform:translateX(-50%) translateY(0);}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:48px;}
+.chart-card{background:var(--parchment);border:1px solid rgba(201,168,76,.35);border-radius:18px;padding:26px 22px;box-shadow:0 4px 18px rgba(90,50,5,.07);}
+.chart-card h3{font-family:var(--fd);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--brown);margin-bottom:20px;font-weight:400;}
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.legend{flex:1;display:flex;flex-direction:column;gap:9px;}
+.legend-item{display:flex;align-items:center;gap:8px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.legend-label{font-family:var(--fs);font-size:10.5px;color:var(--text-muted);flex:1;}
+.legend-val{font-family:var(--fd);font-size:13px;color:var(--brown);}
+.bar-chart{display:flex;flex-direction:column;gap:12px;}
+.bar-row{display:flex;flex-direction:column;gap:5px;}
+.bar-meta{display:flex;justify-content:space-between;font-family:var(--fs);font-size:10.5px;color:var(--text-muted);}
+.bar-track{height:8px;background:rgba(201,168,76,.15);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* ACTIONS */
+.actions-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:var(--fd);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none;transition:transform .2s,background .25s;}
+.btn:hover{transform:translateY(-2px);}
+.btn-primary{background:var(--brown);color:var(--cream);}
+.btn-primary:hover{background:var(--brown-mid);}
+.btn-outline{background:transparent;border:1.5px solid var(--gold);color:var(--brown);}
+.btn-outline:hover{background:var(--gold);color:#fff;}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;}
+.last-updated{font-family:var(--fs);font-size:11px;color:var(--text-muted);margin-left:auto;}
+
+/* TABLE */
+.table-wrap{background:var(--parchment);border:1px solid rgba(201,168,76,.35);border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(90,50,5,.07);margin-bottom:48px;}
+.table-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(201,168,76,.25);background:rgba(253,248,239,.6);gap:10px;flex-wrap:wrap;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--cream);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:8px 14px;flex:1;min-width:180px;max-width:300px;}
+.search-box svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;flex-shrink:0;}
+.search-box input{border:none;background:transparent;font-family:var(--fb);font-size:14px;color:var(--text);outline:none;width:100%;}
+.search-box input::placeholder{color:var(--text-muted);}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{padding:6px 14px;border-radius:20px;font-family:var(--fs);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid rgba(201,168,76,.4);background:transparent;color:var(--text-muted);cursor:pointer;transition:background .2s,color .2s;}
+.pill.active,.pill:hover{background:var(--brown);color:var(--cream);border-color:var(--brown);}
+.pill.green.active{background:var(--green);border-color:var(--green);}
+.pill.red.active{background:var(--red);border-color:var(--red);}
+table{width:100%;border-collapse:collapse;}
+thead th{font-family:var(--fs);font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);padding:12px 16px;text-align:left;border-bottom:1px solid rgba(201,168,76,.25);background:rgba(245,234,214,.5);}
+tbody tr{border-bottom:1px solid rgba(201,168,76,.15);transition:background .2s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(201,168,76,.06);}
+tbody td{padding:13px 16px;font-family:var(--fb);font-size:clamp(13px,2.5vw,15px);color:var(--text);vertical-align:middle;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-family:var(--fs);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;}
+.badge.yes{background:var(--green-bg);color:var(--green);border:1px solid rgba(74,124,89,.25);}
+.badge.no{background:var(--red-bg);color:var(--red);border:1px solid rgba(139,46,46,.25);}
+.badge.maybe{background:#f5f0e0;color:var(--gold-dark);border:1px solid rgba(139,105,20,.25);}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted);font-family:var(--fb);font-style:italic;}
+
+/* FOOTER */
+footer{background:var(--brown);text-align:center;padding:32px 20px;color:rgba(240,217,138,.5);font-family:var(--fb);font-style:italic;font-size:14px;}
+footer span{color:var(--gold);}
+
+@media(max-width:600px){
+  thead th:nth-child(5),tbody td:nth-child(5),
+  thead th:nth-child(6),tbody td:nth-child(6){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-names">Ayisha &amp; Shabin</div>
+  <div class="gate-sub">RSVP Dashboard &nbsp;·&nbsp; 22 · 11 · 2026</div>
+  <div class="gate-label">Enter access code</div>
+  <input type="password" id="pin" placeholder="••••••" maxlength="20" autocomplete="off">
+  <button id="gate-btn">Open Dashboard</button>
+  <div id="gate-err"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header>
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Invitation
+    </a>
+    <div class="header-arabic">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    <div class="header-names">Ayisha &amp; Shabin</div>
+    <div class="header-sub">RSVP Dashboard</div>
+    <div class="header-date">22 · November · 2026</div>
+  </header>
+
+  <main>
+    <!-- STATS -->
+    <div class="summary-row">
+      <div class="stat-card">
+        <div class="stat-icon">📨</div>
+        <div class="stat-num" id="s-total">0</div>
+        <div class="stat-label">Total RSVPs</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-num" id="s-yes">0</div>
+        <div class="stat-label">Attending</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">❌</div>
+        <div class="stat-num" id="s-no">0</div>
+        <div class="stat-label">Not Attending</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">👥</div>
+        <div class="stat-num" id="s-guests">0</div>
+        <div class="stat-label">Total Guests</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="section-head">
+      <h2>Breakdown</h2><div class="line"></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Response Overview</h3>
+        <div class="donut-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(201,168,76,.12)" stroke-width="16"/>
+            <circle id="d-yes"   cx="50" cy="50" r="36" fill="none" stroke="#4a7c59" stroke-width="16" stroke-dasharray="0 226" stroke-dashoffset="56.5" transform="rotate(-90 50 50)"/>
+            <circle id="d-maybe" cx="50" cy="50" r="36" fill="none" stroke="#c9a84c" stroke-width="16" stroke-dasharray="0 226" stroke-dashoffset="56.5" transform="rotate(-90 50 50)"/>
+            <circle id="d-no"    cx="50" cy="50" r="36" fill="none" stroke="#8b2e2e" stroke-width="16" stroke-dasharray="0 226" stroke-dashoffset="56.5" transform="rotate(-90 50 50)"/>
+            <text id="d-pct" x="50" y="55" text-anchor="middle" font-family="Cinzel,serif" font-size="15" fill="#5c3d1e">0%</text>
+          </svg>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#4a7c59"></div><span class="legend-label">Attending</span><span class="legend-val" id="l-yes">0</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c9a84c"></div><span class="legend-label">Maybe</span><span class="legend-val" id="l-maybe">0</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8b2e2e"></div><span class="legend-label">Declined</span><span class="legend-val" id="l-no">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Guest Count</h3>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div id="gallery-section">
+      <div class="section-head">
+        <h2>Photo Gallery</h2><div class="line"></div>
+      </div>
+      <div class="gallery-toolbar">
+        <span class="gallery-count" id="gallery-count">0 / 6 photos</span>
+      </div>
+      <div id="gallery-grid">
+        <div class="gallery-msg">Loading photos…</div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="g-toast"></div>
+
+    <div class="ornament">✦ ✦ ✦</div>
+
+    <!-- TABLE -->
+    <div class="section-head">
+      <h2>All Responses</h2><div class="line"></div>
+    </div>
+    <div class="actions-bar">
+      <button class="btn btn-primary" onclick="loadData()">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh
+      </button>
+      <button class="btn btn-outline" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-top">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search" placeholder="Search by name…" oninput="renderTable()">
+        </div>
+        <div class="filter-pills">
+          <button class="pill active" onclick="setFilter('all',this)">All</button>
+          <button class="pill green"  onclick="setFilter('yes',this)">Attending</button>
+          <button class="pill"        onclick="setFilter('maybe',this)">Maybe</button>
+          <button class="pill red"    onclick="setFilter('no',this)">Declined</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Status</th><th>Guests</th><th>Note</th><th>Submitted</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ornament">✦ ✦ ✦</div>
+  </main>
+
+  <footer>Made with love for <span>Ayisha &amp; Shabin</span> · 22 November 2026</footer>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const PIN = 'Shabinikka';
+
+// Your Google Apps Script Web App URL
+// Handles: GET (RSVP data), GET?gallery=1 (Drive images), POST (submit RSVP)
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwhU0ckuMvTb20TwBBcQeX-Z36H2l96LHCP2pDjFn-O2RuJ5tDS61U9KHpIK06jsH5q/exec';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var rows = [];
+var curFilter = 'all';
+
+// ── GATE ──────────────────────────────────────────────────────────────────────
+document.getElementById('gate-btn').addEventListener('click', tryOpen);
+document.getElementById('pin').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') tryOpen();
+});
+
+function tryOpen() {
+  var val = document.getElementById('pin').value;
+  if (val === PIN) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+    loadGallery();
+  } else {
+    document.getElementById('gate-err').textContent = 'Incorrect code — try again.';
+    document.getElementById('pin').value = '';
+    document.getElementById('pin').focus();
+    setTimeout(function(){ document.getElementById('gate-err').textContent = ''; }, 2500);
+  }
+}
+
+// ── GALLERY ───────────────────────────────────────────────────────────────────
+var galleryImages = []; // [{id, name, url}]
+var MAX_IMAGES = 6;
+
+function loadGallery() {
+  var grid = document.getElementById('gallery-grid');
+  grid.innerHTML = '<div class="gallery-msg">Loading photos…</div>';
+
+  fetch(SHEET_URL + '?gallery=1')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      galleryImages = data.images || [];
+      renderGallery();
+    })
+    .catch(function(err) {
+      console.error('Gallery error:', err);
+      document.getElementById('gallery-grid').innerHTML =
+        '<div class="gallery-msg error">⚠️ Could not load photos. Make sure the Apps Script is deployed as "Anyone".</div>';
+    });
+}
+
+function renderGallery() {
+  var grid = document.getElementById('gallery-grid');
+  var count = galleryImages.length;
+  document.getElementById('gallery-count').textContent = count + ' / ' + MAX_IMAGES + ' photos';
+
+  var html = galleryImages.map(function(img) {
+    return '<div class="gallery-item" id="gi-' + img.id + '">'
+      + '<img src="' + img.url + '" alt="' + escHtml(img.name) + '" loading="lazy"'
+      + ' onerror="this.parentElement.style.display=\'none\'">'
+      + '<div class="gallery-item-actions">'
+      + '<button class="g-btn g-btn-rep" title="Replace" onclick="replaceImage(\'' + img.id + '\')" >🔄</button>'
+      + '<button class="g-btn g-btn-del" title="Delete" onclick="deleteImage(\'' + img.id + '\')">🗑️</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  // Show upload slot if under limit
+  if (count < MAX_IMAGES) {
+    html += '<label class="gallery-upload-slot" title="Upload photo">'
+      + '<input type="file" accept="image/*" onchange="uploadImage(this.files[0])">'
+      + '<span class="upload-icon">📷</span>'
+      + '<span class="upload-label">Add photo<br>(' + (MAX_IMAGES - count) + ' slots left)</span>'
+      + '</label>';
+  }
+
+  grid.innerHTML = html || '<div class="gallery-msg">No photos yet. Upload your first one!</div>';
+}
+
+// UPLOAD new image
+function uploadImage(file, replaceId) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Please select an image file.'); return; }
+  if (galleryImages.length >= MAX_IMAGES && !replaceId) {
+    showToast('Gallery is full (6 / 6). Delete or replace an image first.');
+    return;
+  }
+
+  var grid = document.getElementById('gallery-grid');
+
+  // If replacing, delete old first
+  var doUpload = function() {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var dataUrl = e.target.result;
+      var base64  = dataUrl.split(',')[1];
+
+      // Show spinner slot
+      var spinnerId = 'spinner-' + Date.now();
+      if (!replaceId) {
+        // append spinner before upload slot
+        var slot = grid.querySelector('.gallery-upload-slot');
+        var spinDiv = document.createElement('div');
+        spinDiv.className = 'gallery-item uploading';
+        spinDiv.id = spinnerId;
+        spinDiv.innerHTML = '<div class="spinner"></div>';
+        grid.insertBefore(spinDiv, slot);
+      }
+
+      fetch(SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'upload',
+          filename: file.name,
+          base64: base64,
+          mimeType: file.type
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.success && res.image) {
+          galleryImages.push(res.image);
+          showToast('Photo uploaded!');
+        } else {
+          showToast('Upload failed. Try again.');
+        }
+        renderGallery();
+      })
+      .catch(function(err) {
+        console.error('Upload error:', err);
+        showToast('Upload failed. Check Apps Script deployment.');
+        renderGallery();
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  if (replaceId) {
+    // Delete old then upload
+    doDeleteRequest(replaceId, function() {
+      galleryImages = galleryImages.filter(function(i){ return i.id !== replaceId; });
+      doUpload();
+    });
+  } else {
+    doUpload();
+  }
+}
+
+// REPLACE — opens file picker linked to a specific image slot
+function replaceImage(fileId) {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function() {
+    if (input.files[0]) uploadImage(input.files[0], fileId);
+  };
+  input.click();
+}
+
+// DELETE image
+function deleteImage(fileId) {
+  if (!confirm('Delete this photo from the gallery?')) return;
+
+  // Dim card immediately
+  var card = document.getElementById('gi-' + fileId);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+
+  doDeleteRequest(fileId, function() {
+    galleryImages = galleryImages.filter(function(i){ return i.id !== fileId; });
+    showToast('Photo deleted.');
+    renderGallery();
+  });
+}
+
+function doDeleteRequest(fileId, onSuccess) {
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'delete', fileId: fileId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.success) {
+      onSuccess();
+    } else {
+      showToast('Could not delete. Try again.');
+      renderGallery();
+    }
+  })
+  .catch(function(err) {
+    console.error('Delete error:', err);
+    showToast('Delete failed. Check Apps Script deployment.');
+    renderGallery();
+  });
+}
+
+// TOAST
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('g-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// ── RSVP DATA ─────────────────────────────────────────────────────────────────
+// Fetches rows from Google Sheet "RSVP DEMO" via Apps Script (GET, no params)
+// Returns {data: [{Timestamp, Name, Attendance, Guests, Message}, ...]}
+function loadData() {
+  document.getElementById('last-updated').textContent = 'Loading…';
+
+  fetch(SHEET_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      var raw = json.data || [];
+      rows = raw.map(function(r) {
+        var att = String(r.Attendance || '').toLowerCase();
+        var status = (att.includes('no') || att.includes('decline') || att.includes('not'))
+          ? 'no'
+          : (att.includes('maybe') || att.includes('may'))
+          ? 'maybe'
+          : 'yes';
+        return {
+          ts:     r.Timestamp ? new Date(r.Timestamp).toLocaleString() : '',
+          name:   r.Name    || '',
+          status: status,
+          guests: parseInt(r.Guests) || 0,
+          note:   r.Message || ''
+        };
+      });
+      document.getElementById('last-updated').textContent =
+        'Updated ' + new Date().toLocaleTimeString();
+      update();
+    })
+    .catch(function(err) {
+      console.error('Data error:', err);
+      document.getElementById('last-updated').textContent =
+        '⚠️ Failed to load — check Apps Script URL';
+    });
+}
+
+// ── STATS + CHARTS ────────────────────────────────────────────────────────────
+function update() {
+  var yes   = rows.filter(function(r){ return r.status === 'yes'; });
+  var no    = rows.filter(function(r){ return r.status === 'no'; });
+  var maybe = rows.filter(function(r){ return r.status === 'maybe'; });
+  var total = rows.length;
+  var guests = rows.reduce(function(s, r){ return s + r.guests; }, 0);
+
+  // Stat cards
+  document.getElementById('s-total').textContent  = total;
+  document.getElementById('s-yes').textContent    = yes.length;
+  document.getElementById('s-no').textContent     = no.length;
+  document.getElementById('s-guests').textContent = guests;
+
+  // Legend counts
+  document.getElementById('l-yes').textContent   = yes.length;
+  document.getElementById('l-maybe').textContent = maybe.length;
+  document.getElementById('l-no').textContent    = no.length;
+
+  // Donut chart
+  var circ  = 2 * Math.PI * 36; // ~226.2
+  var yLen  = total ? (yes.length / total) * circ : 0;
+  var mLen  = total ? (maybe.length / total) * circ : 0;
+  var nLen  = total ? (no.length / total) * circ : 0;
+
+  var dYes   = document.getElementById('d-yes');
+  var dMaybe = document.getElementById('d-maybe');
+  var dNo    = document.getElementById('d-no');
+
+  dYes.setAttribute('stroke-dasharray',   yLen + ' ' + (circ - yLen));
+  dYes.setAttribute('stroke-dashoffset',  '56.5');
+
+  dMaybe.setAttribute('stroke-dasharray', mLen + ' ' + (circ - mLen));
+  dMaybe.setAttribute('stroke-dashoffset', (56.5 - yLen));
+
+  dNo.setAttribute('stroke-dasharray',    nLen + ' ' + (circ - nLen));
+  dNo.setAttribute('stroke-dashoffset',   (56.5 - yLen - mLen));
+
+  document.getElementById('d-pct').textContent =
+    total ? Math.round((yes.length / total) * 100) + '%' : '0%';
+
+  // Bar chart — top 5 attending guests by count
+  var bars  = yes.slice().sort(function(a, b){ return b.guests - a.guests; }).slice(0, 5);
+  var maxG  = bars.length ? bars[0].guests : 1;
+  var bc    = document.getElementById('bar-chart');
+  if (bars.length === 0) {
+    bc.innerHTML = '<div style="font-family:var(--fb);font-style:italic;color:var(--text-muted);font-size:14px;padding:8px 0">No attending responses yet</div>';
+  } else {
+    bc.innerHTML = bars.map(function(r) {
+      var pct = maxG > 0 ? Math.round((r.guests / maxG) * 100) : 0;
+      return '<div class="bar-row">'
+        + '<div class="bar-meta"><span>' + escHtml(r.name) + '</span><span>' + r.guests + ' guests</span></div>'
+        + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:var(--gold)"></div></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  renderTable();
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+function setFilter(f, el) {
+  curFilter = f;
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  var q = (document.getElementById('search').value || '').toLowerCase().trim();
+  var filtered = rows.filter(function(r) {
+    var matchFilter = curFilter === 'all' || r.status === curFilter;
+    var matchSearch = !q
+      || r.name.toLowerCase().includes(q)
+      || r.note.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  var tbody = document.getElementById('tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No responses found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(r, i) {
+    var badge = r.status === 'yes'
+      ? '<span class="badge yes"><span class="badge-dot"></span>Attending</span>'
+      : r.status === 'no'
+      ? '<span class="badge no"><span class="badge-dot"></span>Declined</span>'
+      : '<span class="badge maybe"><span class="badge-dot"></span>Maybe</span>';
+    return '<tr>'
+      + '<td style="color:var(--text-muted);font-family:var(--fs);font-size:12px">' + (i + 1) + '</td>'
+      + '<td><strong>' + escHtml(r.name) + '</strong></td>'
+      + '<td>' + badge + '</td>'
+      + '<td style="font-family:var(--fd)">' + (r.guests || '—') + '</td>'
+      + '<td style="color:var(--text-muted);font-size:13px">' + escHtml(r.note) + '</td>'
+      + '<td style="font-family:var(--fs);font-size:11px;color:var(--text-muted)">' + escHtml(r.ts) + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  var lines = ['Timestamp,Name,Status,Guests,Message'];
+  rows.forEach(function(r) {
+    lines.push([
+      '"' + r.ts + '"',
+      '"' + r.name.replace(/"/g,'""') + '"',
+      '"' + r.status + '"',
+      r.guests,
+      '"' + r.note.replace(/"/g,'""') + '"'
+    ].join(','));
+  });
+  var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  var a    = document.createElement('a');
+  a.href   = URL.createObjectURL(blob);
+  a.download = 'rsvp-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
